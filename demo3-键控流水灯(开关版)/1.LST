@@ -1,0 +1,81 @@
+C51 COMPILER V9.00   1                                                                     03/02/2023 11:45:41 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE 1
+OBJECT MODULE PLACED IN 1.OBJ
+COMPILER INVOKED BY: D:\soft\Keil\C51\BIN\C51.EXE 1.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include <intrins.h>
+   3          sbit S0 = P3^0; // -----> 右移流水灯
+   4          sbit S1 = P3^1; // <----- 左移流水灯
+   5          sbit S2 = P3^2; // --><-- 双向流水灯
+   6          sbit S3 = P3^3; // 关灯键
+   7          
+   8          int main() {
+   9   1              int i;
+  10   1              unsigned char mode = 0x03;
+  11   1              unsigned char x = 0x7f; // 初始值 0111 1111
+  12   1              unsigned char y = 0xfe; //        1111 1110
+  13   1              while(1){
+  14   2                  if(S0 == 0) {  // 摁下S0
+  15   3                              mode = 0x00;   // 流水灯状态
+  16   3                      }
+  17   2                      if(S1 == 0) {  // 摁下S1
+  18   3                              mode = 0x01;    // 流水灯状态
+  19   3                      }
+  20   2                      if(S2 == 0) {  // 摁下S2
+  21   3                              mode = 0x02;   // 双向流水灯状态
+  22   3                      }
+  23   2                      if(S3 == 0) {  // 摁下S2
+  24   3                              mode = 0x03;   // 双向流水灯状态
+  25   3                      }
+  26   2                      if(mode == 0x03){
+  27   3                              P1 = 0xff;  // 关灯
+  28   3                              continue;
+  29   3                      }
+  30   2                      if(mode == 0x00) // 摁下S0   -----> 右移流水灯
+  31   2                      {                         
+  32   3                              P1 = x;                   // 点亮
+  33   3                              x = _cror_(x, 1); // 循环右移
+  34   3                              y = _crol_(y, 1); // 同步左移
+  35   3                              for(i = 0; i < 10000; i++);
+  36   3                              continue;
+  37   3                      }
+  38   2                      if(mode == 0x01) // 摁下S1   <----- 左移流水灯
+  39   2                      {       
+  40   3                          y = _cror_(y, 1); // 同步右移         
+  41   3                              x = _crol_(x ,1); // 循环左移
+  42   3                              P1 = x;                   // 点亮
+  43   3                              for(i = 0; i < 10000; i++);
+  44   3                              continue;
+  45   3                      }
+  46   2                      if(mode == 0x02) // 摁下S2      --><-- 双向流水灯
+  47   2                      {
+  48   3                              P1 = x & y;       // 点亮
+  49   3                              x = _cror_(x, 1); // 循环右移
+  50   3                              y = _crol_(y, 1); // 循环左移
+  51   3                              for(i = 0; i < 10000; i++);
+  52   3                              continue;
+  53   3                      }
+  54   2              }
+  55   1              return 0;
+C51 COMPILER V9.00   1                                                                     03/02/2023 11:45:41 PAGE 2   
+
+  56   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    196    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
