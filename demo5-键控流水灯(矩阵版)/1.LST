@@ -1,0 +1,119 @@
+C51 COMPILER V9.00   1                                                                     03/16/2023 20:47:16 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE 1
+OBJECT MODULE PLACED IN 1.OBJ
+COMPILER INVOKED BY: D:\soft\Keil\C51\BIN\C51.EXE 1.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include <intrins.h>
+   3          
+   4          unsigned char KeyScan() {
+   5   1              unsigned char i;
+   6   1              unsigned char a = 0xfe;                 // 1111 1110 
+   7   1              for (i = 0; i < 4; i++) {               // 按行检测 先检测S0-S3 第一行
+   8   2                      P3 = a;
+   9   2                      if (P3 != a) {                          // 检测到了
+  10   3                              return P3;
+  11   3                      };
+  12   2                      a = _crol_(a, 1);                       // 再检测S4-S7 第二行 再检测S8-S11 第三行 再检测S12-S15 第四行
+  13   2              }
+  14   1              return 0xff;                                    // 默认返回全部高电平
+  15   1      }
+  16          
+  17          int main() {
+  18   1              unsigned int i;
+  19   1              unsigned char mode = 0x00;              // 默认关灯状态
+  20   1              unsigned char x = 0x7f;                 // 初始值 0111 1111
+  21   1              unsigned char y = 0xfe;                 //        1111 1110
+  22   1              while(1) {
+  23   2                      switch(KeyScan()) {
+  24   3                              case 0x7e: {                    // S0被按下
+  25   4                                      mode = 0x01;            // 右流水灯模式
+  26   4                                      break;                          // 退出switch
+  27   4                              }
+  28   3                              case 0xbd: {                    // S5被按下
+  29   4                                      mode = 0x02;            // 左流水灯模式
+  30   4                                      break;                          // 退出switch
+  31   4                              }
+  32   3                              case 0xdb: {                    // S10被按下
+  33   4                                      mode = 0x03;            // 双向流水灯模式
+  34   4                                      break;                          // 退出switch
+  35   4                              }
+  36   3                              case 0xe7: {                    // S15被按下
+  37   4                                      mode = 0x00;            // 关灯模式
+  38   4                                      break;                          // 退出switch
+  39   4                              }
+  40   3                              default : {
+  41   4                                      break;
+  42   4                              }
+  43   3                      }
+  44   2                      if(mode == 0x00) {
+  45   3                              P1 = 0xff;
+  46   3                              continue;
+  47   3                      }
+  48   2                      if(mode == 0x01) {
+  49   3                              P1 = x;                                                 // 点亮
+  50   3                              x = _cror_(x, 1);                               // 循环右移
+  51   3                              y = _crol_(y, 1);                               // 同步左移
+  52   3                              for(i = 0; i < 500*12000; i++); // 等待500ms
+  53   3                              continue;
+  54   3                      }
+  55   2                      if(mode == 0x02) {
+C51 COMPILER V9.00   1                                                                     03/16/2023 20:47:16 PAGE 2   
+
+  56   3                              y = _cror_(y, 1);                               // 同步右移       
+  57   3                              x = _crol_(x ,1);                               // 循环左移
+  58   3                              P1 = x;                                                 // 点亮
+  59   3                              for(i = 0; i < 500*12000; i++); // 等待500ms
+  60   3                              continue;
+  61   3                      }
+  62   2                      if(mode == 0x03) {
+  63   3                              P1 = x & y;                                     // 点亮
+  64   3                              x = _cror_(x, 1);                               // 循环右移
+  65   3                              y = _crol_(y, 1);                               // 循环左移
+  66   3                              for(i = 0; i < 500*12000; i++); // 等待500ms
+  67   3                              continue;
+  68   3                      }
+  69   2              }
+  70   1              return 0;
+  71   1      }
+  72          
+  73          /*
+  74          S0              0111 1110               7e              √  -->
+  75          S1              1011 1110               be
+  76          S2              1101 1110               de
+  77          S3              1110 1110               ee
+  78          S4              0111 1101               7d
+  79          S5              1011 1101               bd              √  <--
+  80          S6              1101 1101               dd
+  81          S7              1110 1101               ed
+  82          S8              0111 1011               7b
+  83          S9              1011 1011               bb
+  84          S10             1101 1011               db              √  --><--
+  85          S11             1110 1011               eb
+  86          S12             0111 0111               77
+  87          S13             1011 0111               b7
+  88          S14             1101 0111               d7
+  89          S15             1110 0111               e7              √  ----
+  90          
+  91          @author:cming0420@gmail.com
+  92          @date:2023-3-16
+  93          @description:Matrix key control lighting effect for C51 SCM
+  94          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    260    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
