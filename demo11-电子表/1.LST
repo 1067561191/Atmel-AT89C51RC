@@ -1,0 +1,81 @@
+C51 COMPILER V9.00   1                                                                     04/06/2023 13:23:18 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE 1
+OBJECT MODULE PLACED IN 1.OBJ
+COMPILER INVOKED BY: D:\soft\Keil\C51\BIN\C51.EXE 1.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <stdio.h>
+   2          #include "SEG.h"
+   3          
+   4          
+   5          // 定义要显示的数据的初始值
+   6          unsigned char second = 50, minute = 59, hour = 23;
+   7          // 计时次数默认值   
+   8          unsigned char count = 0;
+   9          
+  10          void timer0() interrupt 1
+  11          {
+  12   1          //////////////////////中断基本处理-开始//////////////////////
+  13   1              count++; // 计数+1
+  14   1          //TF0 = 0; // 重置计时器溢出状态 CPU响应中断后自动清零 无需软件干预                           
+  15   1              TH0 = 0x3c; // 重置高位
+  16   1              TL0 = 0xb0; // 重置低位
+  17   1              TR0 = 1; // 重置计时器启动状态
+  18   1          //////////////////////中断基本处理-结束//////////////////////
+  19   1              //*********************************************************//
+  20   1              //////////////////////中断业务逻辑-开始//////////////////////
+  21   1          if (count == 20) { // 当完成20次计数时
+  22   2                      count = 0; // 重置计时次数
+  23   2                      second++;
+  24   2                  if (second == 60) {
+  25   3                          second = 0;
+  26   3                              minute++;
+  27   3                      }
+  28   2                      if (minute == 60) {
+  29   3                          minute = 0;
+  30   3                              hour++;
+  31   3                      }
+  32   2                      if (hour == 24) {
+  33   3                          hour = 0;
+  34   3                      }
+  35   2              }
+  36   1              //////////////////////中断业务逻辑-结束//////////////////////
+  37   1      }
+  38          
+  39          int main() {
+  40   1          // 显示的字符列表
+  41   1          unsigned char print_char_list[8];
+  42   1          // 显示码列表
+  43   1          unsigned char print_code_list[8];
+  44   1      
+  45   1          TR0 = 1; // 开启计时器T0
+  46   1          TMOD = 0x01; // 设置计时模式
+  47   1              TH0 = 0x3c; // 设置高位初始值
+  48   1              TL0 = 0xb0;     // 设置低位初始值
+  49   1              IE = 0x82; // IE寄存器控制 1000 0010  EA = 1; ET0 = 1;
+  50   1              while (1) {
+  51   2                  sprintf(print_char_list,"%02d-%02d-%02d",(int)hour,(int)minute,(int)second); // 解析显示字符串
+  52   2                  mapping(print_char_list, print_code_list); // 显示字符到显示码映射
+  53   2                  show(print_code_list); // 显示
+  54   2              }
+  55   1              return 0;
+C51 COMPILER V9.00   1                                                                     04/06/2023 13:23:18 PAGE 2   
+
+  56   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    136    ----
+   CONSTANT SIZE    =     15    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4      16
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

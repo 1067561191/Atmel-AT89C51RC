@@ -1,0 +1,62 @@
+C51 COMPILER V9.00   SEG                                                                   04/06/2023 13:23:18 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SEG
+OBJECT MODULE PLACED IN SEG.OBJ
+COMPILER INVOKED BY: D:\soft\Keil\C51\BIN\C51.EXE SEG.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "SEG.h"
+   2          
+   3          code unsigned char KEY_VALUE_MAP[] = {
+   4          '0',0xc0,'1',0xf9,'2',0xa4,'3',0xb0,
+   5          '4',0x99,'5',0x92,'6',0x82,'7',0xf8,
+   6          '8',0x80,'9',0x90,'-',0xbf,'.',0x7f,
+   7          ' ',0xff,'C',0xc6
+   8          };
+   9          
+  10          void mapping(unsigned char * print_char_list, unsigned char * print_code_list) {
+  11   1              unsigned char i,j,k = 0;
+  12   1          for (i = 0; i < 8; i++, k++) {
+  13   2                  for (j = 0; j < 14; j++) {
+  14   3                          if (print_char_list[k] == KEY_VALUE_MAP[j * 2]) {
+  15   4                                  print_code_list[i] = KEY_VALUE_MAP[j * 2 + 1];
+  16   4                                      break;
+  17   4                              }
+  18   3                      }
+  19   2                      if (print_char_list[k + 1] == '.') {
+  20   3                          print_code_list[i] = print_code_list[i] & 0x7f;
+  21   3                              k++;
+  22   3                      }
+  23   2              }
+  24   1      
+  25   1      }
+  26          
+  27          void show(unsigned char * print_code_list) {
+  28   1          static unsigned char i = 0,x = 0xfe;
+  29   1              unsigned char j;
+  30   1              P2 = 0xff;
+  31   1              P2 = print_code_list[i];
+  32   1              P0 = x;
+  33   1              x = _crol_(x,1);
+  34   1              for (j = 0x00; j < 0xff; j++);
+  35   1              i++;
+  36   1              if (i == 8) {
+  37   2                  i = 0;
+  38   2              }
+  39   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    178    ----
+   CONSTANT SIZE    =     28    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       7
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

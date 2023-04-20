@@ -1,0 +1,51 @@
+C51 COMPILER V9.00   1                                                                     03/30/2023 19:38:50 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE 1
+OBJECT MODULE PLACED IN 1.OBJ
+COMPILER INVOKED BY: D:\soft\Keil\C51\BIN\C51.EXE 1.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg51.h>
+   2          
+   3          int main() {
+   4   1              unsigned char i = 0; // 计时次数默认值1
+   5   1          TR0 = 1; // 开启计时器T0
+   6   1          TMOD = 0x01; // 设置计时模式
+   7   1              TH0 = 0x3c; // 设置高位初始值
+   8   1              TL0 = 0xb0;     // 设置低位初始值
+   9   1              P1 = 0xfe; // 默认开灯
+  10   1              while (1) {
+  11   2                  if (TF0 == 1) { // 溢出--完成计时了
+  12   3                          TF0 = 0; // 重置完成状态
+  13   3                              TR0 = 1; // 再次开启计时器T0
+  14   3                              TH0 = 0x3c; // 再次设置高位初始值
+  15   3                      TL0 = 0xb0; // 再次设置低位初始值
+  16   3                              i++; // 计时次数+1
+  17   3                      }
+  18   2                      if (i == 20) { // 当完成20次计数时
+  19   3                              if (P1 == 0xfe) { // 如果是开灯状态
+  20   4                              P1 = 0xff; // 关灯
+  21   4                              } else { // 如果是关灯状态
+  22   4                              P1 = 0xfe; // 开灯
+  23   4                              }
+  24   3                              i = 0; // 重置计时次数
+  25   3                      }       
+  26   2              }
+  27   1              return 0;
+  28   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     50    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

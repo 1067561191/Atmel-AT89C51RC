@@ -1,0 +1,40 @@
+C51 COMPILER V9.00   1                                                                     03/30/2023 19:46:36 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE 1
+OBJECT MODULE PLACED IN 1.OBJ
+COMPILER INVOKED BY: D:\soft\Keil\C51\BIN\C51.EXE 1.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <stdio.h>
+   2          #include "SEG.h"
+   3          
+   4          
+   5          int main() {
+   6   1          unsigned char print_char_list[9]; // 显示的字符列表
+   7   1          unsigned char print_code_list[8]; // 显示码列表
+   8   1          float temp = 25.6; // 要显示的数据
+   9   1              unsigned char j; // 循环计数变量
+  10   1          sprintf(print_char_list,"C    %.1f",temp); // 解析显示字符串
+  11   1              mapping(print_char_list, print_code_list); // 显示字符到显示码映射
+  12   1              while (1) {
+  13   2                  show(print_code_list); // 显示
+  14   2                      for (j = 0x00; j < 0xff; j++); // 防闪
+  15   2              }
+  16   1              return 0;
+  17   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     69    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      17
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

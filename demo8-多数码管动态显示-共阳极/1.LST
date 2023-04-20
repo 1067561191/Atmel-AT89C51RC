@@ -1,0 +1,77 @@
+C51 COMPILER V9.00   1                                                                     03/23/2023 22:10:13 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE 1
+OBJECT MODULE PLACED IN 1.OBJ
+COMPILER INVOKED BY: D:\soft\Keil\C51\BIN\C51.EXE 1.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include <intrins.h>
+   3          
+   4          #define uchar unsigned char
+   5          #define uint unsigned int
+   6          
+   7          code uchar DISPLAY_VALUE[] = {
+   8          0xc0,0xf9,0xa4,0xb0,
+   9          0x99,0x92,0x82,0xf8,
+  10          0x80,0x90,0xbf
+  11          };
+  12          
+  13          
+  14          
+  15          int main() {
+  16   1          uchar index[8] = {10,10,10,10,10,10,10,10};
+  17   1              uchar min = 0,sec = 0,hour = 0,x = 0xfe,i;
+  18   1              uchar j, k = 0;
+  19   1              //uint j;
+  20   1              while (1) {
+  21   2                  if (k == 100) {
+  22   3                          k = 0;
+  23   3                          sec++;
+  24   3                      }
+  25   2                      if (sec == 60) {
+  26   3                          sec = 0;
+  27   3                              min++;
+  28   3                      }
+  29   2                      if (min == 60) {
+  30   3                          min = 0;
+  31   3                              hour++;
+  32   3                      }
+  33   2                      if (hour == 24) {
+  34   3                          hour = 0;
+  35   3                      }
+  36   2                  index[0] = hour / 10;
+  37   2                  index[1] = hour % 10;
+  38   2                  index[3] = min / 10;
+  39   2                  index[4] = min % 10;
+  40   2                  index[6] = sec / 10;
+  41   2                  index[7] = sec % 10;
+  42   2                  for (i = 0; i < 8; i++) {                             
+  43   3                          P2 = 0xff;                                                  // ¹ØµÆ ·À¹íÉÁ
+  44   3                              P2 = DISPLAY_VALUE[index[i]];           // ¿ªµÆ
+  45   3                              P0 = x;                                                         // Ñ¡ÔñÐÅºÅ
+  46   3                              for (j = 0x00; j < 0xff; j++);          // ·ÀÉÁ
+  47   3                          x = _crol_(x,1);                                    // Ñ¡ÔñÐÅºÅ×óÒÆ
+  48   3                      }
+  49   2                      k++;
+  50   2              }
+  51   1              return 0;
+  52   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+C51 COMPILER V9.00   1                                                                     03/23/2023 22:10:13 PAGE 2   
+
+   CODE SIZE        =    137    ----
+   CONSTANT SIZE    =     19    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

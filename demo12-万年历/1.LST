@@ -1,0 +1,175 @@
+C51 COMPILER V9.00   1                                                                     04/12/2023 19:50:57 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE 1
+OBJECT MODULE PLACED IN 1.OBJ
+COMPILER INVOKED BY: D:\soft\Keil\C51\BIN\C51.EXE 1.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <stdio.h>
+   2          #include "SEG.h"
+   3          
+   4          unsigned char old = 0xfe, now = 0xfe;
+   5          unsigned char step = 0;
+   6          unsigned char flow_count = 0;
+   7          unsigned char second = 56, minute = 57, hour = 8, day = 20, month = 4;
+   8          unsigned int year = 2023; // int类型必须最后定义
+   9          
+  10          
+  11          /**
+  12           * 根据当前年月返回当前月最大天数
+  13           */
+  14          unsigned char month_days() {
+  15   1          if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) 
+             -{ // 大月
+  16   2                  return 31;
+  17   2              }
+  18   1          if (month == 4 || month == 6 || month == 9 || month == 11) { // 小月
+  19   2                  return 30;
+  20   2              }
+  21   1          if (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)) { // 闰年
+  22   2                  return 29;
+  23   2          } else {
+  24   2                  return 28;
+  25   2              }
+  26   1              
+  27   1      }
+  28          
+  29          /**
+  30           * 依次检测各时间单位阈值
+  31           */
+  32          void range_time() {
+  33   1          if (second == 60) {
+  34   2                      second = 0;
+  35   2                      flow_count = 16;
+  36   2              minute++;
+  37   2              }
+  38   1          if (minute == 60) {
+  39   2                      minute = 0;
+  40   2                      hour++;
+  41   2              }
+  42   1              if (hour == 24) {
+  43   2                      hour = 0;
+  44   2                      day++;
+  45   2              }
+  46   1              if ((month_days() + 1) == day) {
+  47   2                      day = 1;
+  48   2                      month++;
+  49   2              }
+  50   1              if (month == 13) {
+  51   2                      month = 1;
+  52   2                      year++;
+  53   2              }
+  54   1      }
+C51 COMPILER V9.00   1                                                                     04/12/2023 19:50:57 PAGE 2   
+
+  55          
+  56          void key_change_up() {
+  57   1          P3 = 0xfe;
+  58   1              now = P3;
+  59   1          if (old != now && now == 0xfe) { // 发生上沿跳变
+  60   2                      if (old == 0xbe) { // S1
+  61   3                          step++;
+  62   3                      TR0 = 0; // 暂停计时器
+  63   3                              if (step == 1) {
+  64   4                                      sprintf(print_char_list,"51    %02d",(int)hour);
+  65   4                              }
+  66   3                              if (step == 2) {
+  67   4                                      sprintf(print_char_list,"52    %02d",(int)minute);
+  68   4                              }
+  69   3                          if (step == 3) {
+  70   4                                  step = 0;
+  71   4                                      sprintf(print_char_list,"%02d-%02d-%02d",(int)hour,(int)minute,(int)second);
+  72   4                                  TR0 = 1; // 重启计时器
+  73   4                              } 
+  74   3                      } 
+  75   2                      if (old == 0xde && step == 1) { // S2
+  76   3                              hour++;
+  77   3                              range_time();
+  78   3                              sprintf(print_char_list,"51    %02d",(int)hour);
+  79   3                      }
+  80   2                      if (old == 0xde && step == 2) { // S2
+  81   3                              minute++;
+  82   3                              range_time();
+  83   3                              sprintf(print_char_list,"52    %02d",(int)minute);
+  84   3                      } 
+  85   2                      if (old == 0xee && step == 1) { // S3
+  86   3                              hour = hour == 0 ? 0 : hour - 1;
+  87   3                              sprintf(print_char_list,"51    %02d",(int)hour);
+  88   3                      }
+  89   2                      if (old == 0xee && step == 2) { // S3
+  90   3                              minute = minute == 0 ? 0 : minute - 1;
+  91   3                              sprintf(print_char_list,"52    %02d",(int)minute);
+  92   3                  }
+  93   2                      mapping(print_char_list, print_code_list);
+  94   2              }
+  95   1              old = now;
+  96   1      }
+  97          
+  98          /**
+  99           * 定时器T0中断方法
+ 100           */
+ 101          void timer0() interrupt 1
+ 102          {
+ 103   1          static unsigned char timer_count = 0;
+ 104   1          //////////////////////中断基本处理-开始//////////////////////
+ 105   1              timer_count++; // 计数+1                                  
+ 106   1              TH0 = 0x3c; // 重置高位
+ 107   1              TL0 = 0xb0; // 重置低位
+ 108   1          //////////////////////中断基本处理-结束//////////////////////
+ 109   1              //*********************************************************//
+ 110   1              //////////////////////中断业务逻辑-开始//////////////////////
+ 111   1              if (flow_count == 0 && P1 != 0xff && timer_count % 4 == 0) {
+ 112   2                  P1 = 0xff;
+ 113   2              }
+ 114   1              if (flow_count > 0 && timer_count % 4 == 0) {
+ 115   2                  P1 = _crol_(0xfe,16 - flow_count--);
+ 116   2              }
+C51 COMPILER V9.00   1                                                                     04/12/2023 19:50:57 PAGE 3   
+
+ 117   1          if (timer_count == 20 || timer_count == 40 || timer_count == 60) { // 显示时间 0-3秒
+ 118   2                      second++;
+ 119   2                      range_time();
+ 120   2                      sprintf(print_char_list,"%02d-%02d-%02d",(int)hour,(int)minute,(int)second);
+ 121   2              }
+ 122   1              if (timer_count == 80 || timer_count == 100 || timer_count == 120) { // 显示日期 3-6秒
+ 123   2                  second++;
+ 124   2                      range_time();
+ 125   2                  sprintf(print_char_list,"%04d%02d%02d",year,(int)month,(int)day);
+ 126   2              }
+ 127   1              if (timer_count == 120) {
+ 128   2                  timer_count = 0;
+ 129   2              }
+ 130   1              mapping(print_char_list, print_code_list);
+ 131   1              //////////////////////中断业务逻辑-结束//////////////////////
+ 132   1      }
+ 133          
+ 134          int main() {
+ 135   1              sprintf(print_char_list,"3----075");
+ 136   1              mapping(print_char_list, print_code_list);
+ 137   1          TMOD = 0x01; // 设置计时模式
+ 138   1              TH0 = 0x3c; // 设置高位初始值
+ 139   1              TL0 = 0xb0;     // 设置低位初始值
+ 140   1              IE = 0x82; // IE寄存器控制 1000 0010  EA = 1; ET0 = 1;
+ 141   1          TR0 = 1; // 开启计时器T0
+ 142   1              while (1) {
+ 143   2                      key_change_up();
+ 144   2                  show(print_code_list); // 显示
+ 145   2              }
+ 146   1              return 0;
+ 147   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    838    ----
+   CONSTANT SIZE    =     59    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     12    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

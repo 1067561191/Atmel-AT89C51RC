@@ -1,0 +1,101 @@
+C51 COMPILER V9.00   1                                                                     04/20/2023 18:38:40 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE 1
+OBJECT MODULE PLACED IN 1.OBJ
+COMPILER INVOKED BY: D:\soft\Keil\C51\BIN\C51.EXE 1.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <stdio.h>
+   2          #include "SEG.h"
+   3          
+   4          
+   5          unsigned char second = 56, minute = 57, hour = 8;
+   6          
+   7          
+   8          
+   9          /**
+  10           * 依次检测各时间单位阈值
+  11           */
+  12          void range_time() {
+  13   1          if (second == 60) {
+  14   2                      second = 0;
+  15   2              minute++;
+  16   2              }
+  17   1          if (minute == 60) {
+  18   2                      minute = 0;
+  19   2                      hour++;
+  20   2              }
+  21   1              if (hour == 24) {
+  22   2                      hour = 0;
+  23   2              }
+  24   1      }
+  25          
+  26          
+  27          /**
+  28           * 定时器T0中断方法
+  29           */
+  30          void timer0() interrupt 1
+  31          {
+  32   1          static unsigned char timer_count = 0;
+  33   1          //////////////////////中断基本处理-开始//////////////////////
+  34   1              timer_count++; // 计数+1                                  
+  35   1              TH0 = 0x3c; // 重置高位
+  36   1              TL0 = 0xb0; // 重置低位
+  37   1          //////////////////////中断基本处理-结束//////////////////////
+  38   1              //*********************************************************//
+  39   1              //////////////////////中断业务逻辑-开始//////////////////////
+  40   1          if (timer_count == 20) { // 显示时间 +秒
+  41   2                  timer_count = 0;
+  42   2                      second++;
+  43   2                      range_time();
+  44   2                      sprintf(print_char_list,"%02d-%02d-%02d",(int)hour,(int)minute,(int)second);
+  45   2              }
+  46   1              mapping(print_char_list, print_code_list);
+  47   1              //////////////////////中断业务逻辑-结束//////////////////////
+  48   1      }
+  49          void inter0() interrupt 0
+  50          {
+  51   1              hour++;
+  52   1              range_time();
+  53   1              sprintf(print_char_list,"%02d-%02d-%02d",(int)hour,(int)minute,(int)second);
+  54   1      }
+  55          void inter2() interrupt 2
+C51 COMPILER V9.00   1                                                                     04/20/2023 18:38:40 PAGE 2   
+
+  56          {
+  57   1              minute++;
+  58   1              range_time();
+  59   1              sprintf(print_char_list,"%02d-%02d-%02d",(int)hour,(int)minute,(int)second);
+  60   1      }
+  61          
+  62          int main() {
+  63   1              sprintf(print_char_list,"3----075");
+  64   1              mapping(print_char_list, print_code_list);
+  65   1          TMOD = 0x01; // 设置计时模式
+  66   1              TH0 = 0x3c; // 设置高位初始值
+  67   1              TL0 = 0xb0;     // 设置低位初始值
+  68   1              IE = 0x87; // IE寄存器控制 1000 0111  EA = 1; EX1 = 1; ET0 = 1; EX0 = 1;
+  69   1          TR0 = 1; // 开启计时器T0
+  70   1              IT0 = 1; // 开启外部中断0下沿 P3.2
+  71   1              IT1 = 1; // 开启外部中断1下沿 P3.3
+  72   1              while (1) {
+  73   2                  show(print_code_list); // 显示
+  74   2              }
+  75   1              return 0;
+  76   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    419    ----
+   CONSTANT SIZE    =     24    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
