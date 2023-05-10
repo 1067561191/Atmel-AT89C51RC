@@ -1,0 +1,5 @@
+"STARTUP.obj",
+"main.obj",
+"SEG.obj" 
+TO "1" 
+RAMSIZE(256) 
